@@ -5,7 +5,7 @@ formal/13-12-09), op dezelfde manier gebouwd als
 [ArchiMate 4.0 in RDF](https://github.com/jwvveen/archimate-rdf). De regels uit
 de specificatie zijn data. Validatie staat los van betekenis. Elke stroom is
 een eigen resource. En een procesmodel sluit aan op architectuur, begrippen en
-regels. Het artikel "BPMN 2.0 in RDF: the matrix is data" legt de keuzes uit.
+regels. Het artikel "BPMN 2.0.2 in RDF: the matrix is data" legt de keuzes uit.
 
 *English version: [README.md](README.md).*
 

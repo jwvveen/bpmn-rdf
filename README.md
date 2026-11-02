@@ -5,7 +5,7 @@ formal/13-12-09), built the same way as
 [ArchiMate 4.0 in RDF](https://github.com/jwvveen/archimate-rdf): the rules of
 the specification are data, validation is separate from meaning, every flow is
 a resource, and process models connect to architecture, concepts and rules.
-The accompanying article, "BPMN 2.0 in RDF: the matrix is data", explains the
+The accompanying article, "BPMN 2.0.2 in RDF: the matrix is data", explains the
 reasoning.
 
 *Nederlandse versie: [README.nl.md](README.nl.md).*
