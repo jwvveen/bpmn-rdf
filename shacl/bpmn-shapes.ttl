@@ -184,8 +184,8 @@ bpmnsh:GatewaySplitsOrMergesShape
         sh:message "A Gateway merges or splits: it has multiple incoming or multiple outgoing Sequence Flows (10.6.1)."@en ,
                    "Een gateway voegt samen of splitst: hij heeft meer inkomende of meer uitgaande volgordestromen (10.6.1)."@nl ;
         sh:select """SELECT $this WHERE {
-            { SELECT $this (COUNT(DISTINCT ?i) AS ?in) WHERE { $this a bpmn:Gateway . OPTIONAL { ?i a bpmn:SequenceFlow ; bpmn:targetRef $this } } GROUP BY $this }
-            { SELECT $this (COUNT(DISTINCT ?o) AS ?uit) WHERE { $this a bpmn:Gateway . OPTIONAL { ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this } } GROUP BY $this }
+            { SELECT $this (COUNT(DISTINCT ?i) AS ?in) WHERE { $this a/rdfs:subClassOf* bpmn:Gateway . OPTIONAL { ?i a bpmn:SequenceFlow ; bpmn:targetRef $this } } GROUP BY $this }
+            { SELECT $this (COUNT(DISTINCT ?o) AS ?uit) WHERE { $this a/rdfs:subClassOf* bpmn:Gateway . OPTIONAL { ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this } } GROUP BY $this }
             FILTER (?in < 2 && ?uit < 2) }""" ] .
 
 bpmnsh:GatewayDirectionShape
@@ -196,8 +196,8 @@ bpmnsh:GatewayDirectionShape
         sh:message "The Sequence Flows of this Gateway do not match its gatewayDirection (10.6.1)."@en , "De volgordestromen van deze gateway passen niet bij zijn richting (10.6.1)."@nl ;
         sh:select """SELECT $this WHERE {
             $this bpmn:gatewayDirection ?r .
-            { SELECT $this (COUNT(DISTINCT ?i) AS ?in) WHERE { $this a bpmn:Gateway . OPTIONAL { ?i a bpmn:SequenceFlow ; bpmn:targetRef $this } } GROUP BY $this }
-            { SELECT $this (COUNT(DISTINCT ?o) AS ?uit) WHERE { $this a bpmn:Gateway . OPTIONAL { ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this } } GROUP BY $this }
+            { SELECT $this (COUNT(DISTINCT ?i) AS ?in) WHERE { $this a/rdfs:subClassOf* bpmn:Gateway . OPTIONAL { ?i a bpmn:SequenceFlow ; bpmn:targetRef $this } } GROUP BY $this }
+            { SELECT $this (COUNT(DISTINCT ?o) AS ?uit) WHERE { $this a/rdfs:subClassOf* bpmn:Gateway . OPTIONAL { ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this } } GROUP BY $this }
             FILTER ((LCASE(STR(?r)) IN ("converging", "https://w3id.org/bpmn#gatewaydirection-converging") && (?in < 2 || ?uit > 1)) ||
                     (LCASE(STR(?r)) IN ("diverging", "https://w3id.org/bpmn#gatewaydirection-diverging") && (?uit < 2 || ?in > 1))) }""" ] .
 
