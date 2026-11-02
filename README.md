@@ -77,8 +77,8 @@ and OMG has no official RDF form of BPMN. The namespace
   process in ArchiMate, a task whose application does not serve the process,
   and a message between pools whose actors have no relationship.
 
-* **Ontology and validation are separate**, and everything is **bilingual**
-  (English and Dutch).
+* **Ontology and validation are separate**, and labels are **bilingual**
+  (English and Dutch); validation messages are in English, Dutch, German and French.
 
 * **A printing error in the specification.** In the published BPMN 2.0.2 PDF,
   ten cells show a per mille sign or a circumflex where an arrow belongs: the
