@@ -1,0 +1,89 @@
+@prefix bpmn:   <https://w3id.org/bpmn#> .
+@prefix bpmnsh: <https://w3id.org/bpmn/shapes#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# SHACL matrix validation (level 3)
+#
+# The matrix itself is data (bpmn-matrix.ttl, generated from Tables 7.3
+# and 7.4 of BPMN 2.0.2). These two constraints are generic: they read
+# the cells from the graph, so a change in the matrix needs no new
+# shapes. Subclasses resolve through rdfs:subClassOf*: a UserTask reaches
+# the cells for Task, a Transaction the cells for SubProcess.
+#
+# Load ontology, matrix and model data into the SAME graph. pyshacl's
+# ont-graph mixin is not visible to SPARQL constraints, and then every
+# flow is reported as a violation (the trap described for ArchiMate).
+#################################################################
+
+<https://w3id.org/bpmn/shapes/matrix>
+    a owl:Ontology ;
+    rdfs:label "BPMN SHACL matrix shapes"@en , "BPMN SHACL-matrixshapes"@nl ;
+    owl:versionInfo "0.1.0" ;
+    sh:declare [ sh:prefix "bpmn" ; sh:namespace "https://w3id.org/bpmn#"^^xsd:anyURI ] ,
+               [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] .
+
+# A cell of the tables forbids this connection.
+bpmnsh:MatrixForbiddenShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SequenceFlow , bpmn:MessageFlow ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "{?cell} forbids this connection."@en , "{?cell} verbiedt deze verbinding."@nl ;
+        sh:prefixes <https://w3id.org/bpmn/shapes/matrix> ;
+        sh:select """
+            SELECT $this ?cell WHERE {
+                $this a ?ft ; bpmn:sourceRef ?s ; bpmn:targetRef ?t .
+                ?s a ?st . ?t a ?tt .
+                ?rule a bpmn:ConnectionRule ; bpmn:flowType ?ft ; bpmn:permitted false ;
+                      bpmn:sourceType ?sc ; bpmn:targetType ?tc ; bpmn:specCell ?cell .
+                ?st rdfs:subClassOf* ?sc . ?tt rdfs:subClassOf* ?tc .
+                OPTIONAL { ?rule bpmn:sourceTrigger ?frs }
+                OPTIONAL { ?rule bpmn:targetTrigger ?frt }
+                FILTER (!BOUND(?frs) || EXISTS { ?s (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d3 . ?d3 a/rdfs:subClassOf* ?frs })
+                FILTER (!BOUND(?frt) || EXISTS { ?t (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d4 . ?d4 a/rdfs:subClassOf* ?frt })
+                FILTER NOT EXISTS {
+                    ?ok a bpmn:ConnectionRule ; bpmn:flowType ?ft ; bpmn:permitted true ;
+                        bpmn:sourceType ?sc2 ; bpmn:targetType ?tc2 .
+                    ?s a/rdfs:subClassOf* ?sc2 . ?t a/rdfs:subClassOf* ?tc2 .
+                    OPTIONAL { ?ok bpmn:sourceTrigger ?trs }
+                    OPTIONAL { ?ok bpmn:targetTrigger ?trt }
+                    FILTER (!BOUND(?trs) || EXISTS { ?s (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d1 . ?d1 a/rdfs:subClassOf* ?trs })
+                    FILTER (!BOUND(?trt) || EXISTS { ?t (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d2 . ?d2 a/rdfs:subClassOf* ?trt })
+                }
+            }
+        """ ;
+    ] .
+
+# No cell of the tables covers this connection at all: the source or the
+# target is not something this kind of flow may connect (an artifact, a
+# data object, a lane, an event without the right trigger).
+bpmnsh:MatrixNoCellShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SequenceFlow , bpmn:MessageFlow ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "No cell of Table 7.3 or 7.4 permits a flow of this type between these two kinds of element."@en ,
+                   "Geen cel van tabel 7.3 of 7.4 staat een stroom van deze soort toe tussen deze twee soorten element."@nl ;
+        sh:prefixes <https://w3id.org/bpmn/shapes/matrix> ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a ?ft ; bpmn:sourceRef ?s ; bpmn:targetRef ?t .
+                FILTER (?ft IN (bpmn:SequenceFlow, bpmn:MessageFlow))
+                # An element may carry more types (a tool's own vocabulary next to
+                # bpmn:): a cell for any of them is enough.
+                FILTER NOT EXISTS {
+                    ?rule a bpmn:ConnectionRule ; bpmn:flowType ?ft ;
+                          bpmn:sourceType ?sc ; bpmn:targetType ?tc .
+                    ?s a/rdfs:subClassOf* ?sc . ?t a/rdfs:subClassOf* ?tc .
+                    OPTIONAL { ?rule bpmn:sourceTrigger ?trs }
+                    OPTIONAL { ?rule bpmn:targetTrigger ?trt }
+                    FILTER (!BOUND(?trs) || EXISTS { ?s (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d1 . ?d1 a/rdfs:subClassOf* ?trs })
+                    FILTER (!BOUND(?trt) || EXISTS { ?t (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d2 . ?d2 a/rdfs:subClassOf* ?trt })
+                }
+            }
+        """ ;
+    ] .

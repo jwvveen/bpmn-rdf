@@ -1,0 +1,304 @@
+@prefix bpmn:   <https://w3id.org/bpmn#> .
+@prefix bpmnsh: <https://w3id.org/bpmn/shapes#> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# SHACL levels 1 and 2: graph integrity and the normative sentences of
+# BPMN 2.0.2 that the connection tables do not capture. Every shape says
+# which statement of bpmn-rules.ttl it checks (dct:source). The matrix
+# itself (level 3) is in bpmn-matrix-shapes.ttl.
+#
+# Containment: a flow element belongs to the container that lists it in
+# bpmn:flowElements (a process or a sub-process); a participant (pool)
+# owns what its process contains, at any depth.
+#################################################################
+
+<https://w3id.org/bpmn/shapes/rules>
+    a owl:Ontology ;
+    rdfs:label "BPMN SHACL rule shapes"@en , "BPMN SHACL-regelshapes"@nl ;
+    owl:versionInfo "0.1.0" ;
+    sh:declare [ sh:prefix "bpmn" ; sh:namespace "https://w3id.org/bpmn#"^^xsd:anyURI ] ,
+               [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] .
+
+# --- Level 1: integrity -------------------------------------------------------
+
+bpmnsh:FlowEndsShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SequenceFlow , bpmn:MessageFlow ;
+    dct:source bpmn:statement-11 ;
+    sh:property [ sh:path bpmn:sourceRef ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:message "A flow has exactly one source."@en , "Een stroom heeft precies een bron."@nl ] ,
+                [ sh:path bpmn:targetRef ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:message "A flow has exactly one target."@en , "Een stroom heeft precies een doel."@nl ] .
+
+bpmnsh:DanglingFlowShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SequenceFlow , bpmn:MessageFlow ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "The source or target of this flow is not in the graph."@en , "De bron of het doel van deze stroom staat niet in de graaf."@nl ;
+        sh:select """SELECT $this WHERE { $this (bpmn:sourceRef|bpmn:targetRef) ?x . FILTER NOT EXISTS { ?x a ?k } }""" ] .
+
+# --- Level 2: pools and containers ---------------------------------------------
+
+bpmnsh:MessageFlowSamePoolShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:MessageFlow ;
+    dct:source bpmn:statement-05 , bpmn:statement-14 , bpmn:statement-17 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A Message Flow must connect two separate Pools (9.4); this one stays inside {?pool}."@en ,
+                   "Een berichtenstroom moet twee verschillende pools verbinden (9.4); deze blijft binnen {?pool}."@nl ;
+        sh:select """
+            SELECT $this ?pool WHERE {
+                $this bpmn:sourceRef ?s ; bpmn:targetRef ?t .
+                ?pool a bpmn:Participant .
+                { ?pool bpmn:processRef/bpmn:flowElements+ ?s } UNION { FILTER (?s = ?pool) }
+                { ?pool bpmn:processRef/bpmn:flowElements+ ?t } UNION { FILTER (?t = ?pool) }
+            }""" ] .
+
+bpmnsh:SequenceFlowContainerShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SequenceFlow ;
+    dct:source bpmn:statement-03 , bpmn:statement-06 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "Source and target of a Sequence Flow must be in the same process or sub-process: a Sequence Flow cannot cross a Pool or Sub-Process boundary."@en ,
+                   "Bron en doel van een volgordestroom horen in hetzelfde proces of deelproces: een volgordestroom gaat niet over de grens van een pool of deelproces."@nl ;
+        sh:select """
+            SELECT $this WHERE {
+                $this bpmn:sourceRef ?s ; bpmn:targetRef ?t .
+                ?c1 bpmn:flowElements ?s . ?c2 bpmn:flowElements ?t .
+                FILTER NOT EXISTS { ?c bpmn:flowElements ?s , ?t }
+            }""" ] .
+
+# --- Level 2: events ----------------------------------------------------------------
+
+bpmnsh:StartEventSourceShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:StartEvent ;
+    dct:source bpmn:statement-23 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A Start Event must be the source of a Sequence Flow (10.5.2)."@en , "Een startgebeurtenis moet de bron van een volgordestroom zijn (10.5.2)."@nl ;
+        sh:select """SELECT $this WHERE { FILTER NOT EXISTS { ?f a bpmn:SequenceFlow ; bpmn:sourceRef $this } }""" ] .
+
+bpmnsh:StartEventConditionShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:StartEvent ;
+    dct:source bpmn:statement-24 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "Outgoing Sequence Flows of a Start Event have no condition (10.5.2)."@en , "Uitgaande volgordestromen van een startgebeurtenis hebben geen voorwaarde (10.5.2)."@nl ;
+        sh:select """SELECT $this WHERE { ?f a bpmn:SequenceFlow ; bpmn:sourceRef $this ; bpmn:conditionExpression ?c }""" ] .
+
+bpmnsh:EndEventTargetShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:EndEvent ;
+    dct:source bpmn:statement-27 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "An End Event must be the target of a Sequence Flow (10.5.3)."@en , "Een eindgebeurtenis moet het doel van een volgordestroom zijn (10.5.3)."@nl ;
+        sh:select """SELECT $this WHERE { FILTER NOT EXISTS { ?f a bpmn:SequenceFlow ; bpmn:targetRef $this } }""" ] .
+
+bpmnsh:BoundaryEventIncomingShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:BoundaryEvent ;
+    dct:source bpmn:statement-33 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "An event attached to the boundary of an Activity is never the target of a Sequence Flow (10.5.4)."@en ,
+                   "Een gebeurtenis op de rand van een activiteit is nooit het doel van een volgordestroom (10.5.4)."@nl ;
+        sh:select """SELECT $this WHERE { ?f a bpmn:SequenceFlow ; bpmn:targetRef $this }""" ] .
+
+bpmnsh:CompensationOutgoingShape
+    a sh:NodeShape ;
+    # The exception of 10.5.4 is written for events attached to an Activity boundary;
+    # a throwing compensation event in normal flow does have an outgoing Sequence Flow
+    # (MIWG reference model C.6.0 has three).
+    sh:targetClass bpmn:BoundaryEvent ;
+    dct:source bpmn:statement-35 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A boundary event with a Compensation trigger has no outgoing Sequence Flow (10.5.4); use an Association."@en ,
+                   "Een randgebeurtenis met een compensatietrigger heeft geen uitgaande volgordestroom (10.5.4); gebruik een associatie."@nl ;
+        sh:select """SELECT $this WHERE { $this (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d . ?d a bpmn:CompensateEventDefinition .
+                                           ?f a bpmn:SequenceFlow ; bpmn:sourceRef $this }""" ] .
+
+bpmnsh:IntermediateInFlowShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:IntermediateCatchEvent , bpmn:IntermediateThrowEvent ;
+    dct:source bpmn:statement-37 , bpmn:statement-38 , bpmn:statement-39 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "An Intermediate Event in normal flow is both the target and the source of a Sequence Flow (10.5.4), unless it is a Link event."@en ,
+                   "Een tussengebeurtenis in de normale stroom is zowel doel als bron van een volgordestroom (10.5.4), behalve een koppelgebeurtenis."@nl ;
+        sh:select """SELECT $this WHERE {
+            FILTER NOT EXISTS { $this (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d . ?d a ?dk .
+                                FILTER (?dk = bpmn:LinkEventDefinition) }
+            FILTER (NOT EXISTS { ?i a bpmn:SequenceFlow ; bpmn:targetRef $this } || NOT EXISTS { ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this })
+        }""" ] .
+
+bpmnsh:LinkBothWaysShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:IntermediateCatchEvent , bpmn:IntermediateThrowEvent ;
+    dct:source bpmn:statement-40 , bpmn:statement-41 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A Link Intermediate Event is a target or a source of Sequence Flow, never both (10.5.4)."@en ,
+                   "Een koppelgebeurtenis is doel of bron van een volgordestroom, nooit beide (10.5.4)."@nl ;
+        sh:select """SELECT $this WHERE { $this (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d . ?d a bpmn:LinkEventDefinition .
+            ?i a bpmn:SequenceFlow ; bpmn:targetRef $this . ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this }""" ] .
+
+bpmnsh:LinkPairShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:IntermediateThrowEvent ;
+    dct:source bpmn:statement-42 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A source Link has a matching target Link with the same name (10.5.4)."@en , "Een bronkoppeling heeft een doelkoppeling met dezelfde naam (10.5.4)."@nl ;
+        sh:select """SELECT $this WHERE { $this (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d . ?d a bpmn:LinkEventDefinition .
+            OPTIONAL { ?d bpmn:name ?dn } OPTIONAL { $this bpmn:name ?en }
+            BIND (COALESCE(?dn, ?en, "") AS ?naam)
+            FILTER NOT EXISTS { ?doel a bpmn:IntermediateCatchEvent ; (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d2 . ?d2 a bpmn:LinkEventDefinition .
+                                OPTIONAL { ?d2 bpmn:name ?dn2 } OPTIONAL { ?doel bpmn:name ?en2 }
+                                FILTER (COALESCE(?dn2, ?en2, "") = ?naam) } }""" ] .
+
+bpmnsh:MessageEventOneWayShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:IntermediateCatchEvent , bpmn:IntermediateThrowEvent ;
+    dct:source bpmn:statement-47 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A Message Intermediate Event has an incoming or an outgoing Message Flow, not both (10.5.4)."@en ,
+                   "Een berichttussengebeurtenis heeft een inkomende of een uitgaande berichtenstroom, niet beide (10.5.4)."@nl ;
+        sh:select """SELECT $this WHERE { ?i a bpmn:MessageFlow ; bpmn:targetRef $this . ?o a bpmn:MessageFlow ; bpmn:sourceRef $this }""" ] .
+
+bpmnsh:EventSubProcessShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SubProcess ;
+    dct:source bpmn:statement-20 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "An Event Sub-Process has no incoming or outgoing Sequence Flows (10.3.5)."@en , "Een gebeurtenisdeelproces heeft geen inkomende of uitgaande volgordestromen (10.3.5)."@nl ;
+        sh:select """SELECT $this WHERE { $this bpmn:triggeredByEvent true . ?f a bpmn:SequenceFlow ; (bpmn:sourceRef|bpmn:targetRef) $this }""" ] .
+
+# --- Level 2: gateways and conditions ---------------------------------------------------
+
+bpmnsh:GatewaySplitsOrMergesShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:Gateway ;
+    dct:source bpmn:statement-50 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A Gateway merges or splits: it has multiple incoming or multiple outgoing Sequence Flows (10.6.1)."@en ,
+                   "Een gateway voegt samen of splitst: hij heeft meer inkomende of meer uitgaande volgordestromen (10.6.1)."@nl ;
+        sh:select """SELECT $this WHERE {
+            { SELECT $this (COUNT(DISTINCT ?i) AS ?in) WHERE { $this a bpmn:Gateway . OPTIONAL { ?i a bpmn:SequenceFlow ; bpmn:targetRef $this } } GROUP BY $this }
+            { SELECT $this (COUNT(DISTINCT ?o) AS ?uit) WHERE { $this a bpmn:Gateway . OPTIONAL { ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this } } GROUP BY $this }
+            FILTER (?in < 2 && ?uit < 2) }""" ] .
+
+bpmnsh:GatewayDirectionShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:Gateway ;
+    dct:source bpmn:statement-51 , bpmn:statement-52 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "The Sequence Flows of this Gateway do not match its gatewayDirection (10.6.1)."@en , "De volgordestromen van deze gateway passen niet bij zijn richting (10.6.1)."@nl ;
+        sh:select """SELECT $this WHERE {
+            $this bpmn:gatewayDirection ?r .
+            { SELECT $this (COUNT(DISTINCT ?i) AS ?in) WHERE { $this a bpmn:Gateway . OPTIONAL { ?i a bpmn:SequenceFlow ; bpmn:targetRef $this } } GROUP BY $this }
+            { SELECT $this (COUNT(DISTINCT ?o) AS ?uit) WHERE { $this a bpmn:Gateway . OPTIONAL { ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this } } GROUP BY $this }
+            FILTER ((LCASE(STR(?r)) IN ("converging", "https://w3id.org/bpmn#gatewaydirection-converging") && (?in < 2 || ?uit > 1)) ||
+                    (LCASE(STR(?r)) IN ("diverging", "https://w3id.org/bpmn#gatewaydirection-diverging") && (?uit < 2 || ?in > 1))) }""" ] .
+
+bpmnsh:ConditionalFromActivityShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SequenceFlow ;
+    dct:source bpmn:statement-12 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A conditional Sequence Flow from an Activity needs at least one other outgoing Sequence Flow (8.4.13)."@en ,
+                   "Een voorwaardelijke volgordestroom uit een activiteit vraagt minstens een andere uitgaande volgordestroom (8.4.13)."@nl ;
+        sh:select """SELECT $this WHERE { $this bpmn:conditionExpression ?c ; bpmn:sourceRef ?a . ?a a/rdfs:subClassOf* bpmn:Activity .
+            FILTER NOT EXISTS { ?ander a bpmn:SequenceFlow ; bpmn:sourceRef ?a . FILTER (?ander != $this) } }""" ] .
+
+bpmnsh:ConditionFromGatewayShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SequenceFlow ;
+    dct:source bpmn:statement-13 , bpmn:statement-54 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A Sequence Flow out of a Parallel or Event-Based Gateway has no condition (8.4.13, 10.6.6)."@en ,
+                   "Een volgordestroom uit een parallelle of gebeurtenisgestuurde gateway heeft geen voorwaarde (8.4.13, 10.6.6)."@nl ;
+        sh:select """SELECT $this WHERE { $this bpmn:conditionExpression ?c ; bpmn:sourceRef ?g . ?g a ?gk .
+            FILTER (?gk IN (bpmn:ParallelGateway, bpmn:EventBasedGateway)) }""" ] .
+
+bpmnsh:EventGatewayShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:EventBasedGateway ;
+    dct:source bpmn:statement-53 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "An Event-Based Gateway has two or more outgoing Sequence Flows (10.6.6)."@en , "Een gebeurtenisgestuurde gateway heeft twee of meer uitgaande volgordestromen (10.6.6)."@nl ;
+        sh:select """SELECT $this WHERE {
+            { SELECT $this (COUNT(DISTINCT ?o) AS ?uit) WHERE { $this a bpmn:EventBasedGateway . OPTIONAL { ?o a bpmn:SequenceFlow ; bpmn:sourceRef $this } } GROUP BY $this }
+            FILTER (?uit < 2) }""" ] .
+
+bpmnsh:EventGatewayTargetShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:SequenceFlow ;
+    dct:source bpmn:statement-55 , bpmn:statement-58 , bpmn:statement-59 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "After an Event-Based Gateway comes a catching Intermediate Event (Message, Signal, Timer, Conditional or Multiple) or a Receive Task, with no other incoming Sequence Flow (10.6.6)."@en ,
+                   "Na een gebeurtenisgestuurde gateway volgt een vangende tussengebeurtenis (bericht, signaal, tijd, voorwaarde of meervoudig) of een ontvangsttaak, zonder andere inkomende volgordestroom (10.6.6)."@nl ;
+        sh:select """SELECT $this WHERE { $this bpmn:sourceRef ?g ; bpmn:targetRef ?t . ?g a bpmn:EventBasedGateway .
+            FILTER (
+                NOT EXISTS { ?t a bpmn:ReceiveTask }
+                && NOT EXISTS { ?t a bpmn:IntermediateCatchEvent ; (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d . ?d a ?dk .
+                                FILTER (?dk IN (bpmn:MessageEventDefinition, bpmn:SignalEventDefinition, bpmn:TimerEventDefinition, bpmn:ConditionalEventDefinition)) }
+                || EXISTS { ?ander a bpmn:SequenceFlow ; bpmn:targetRef ?t . FILTER (?ander != $this) } ) }""" ] .
+
+bpmnsh:EventGatewayMixShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:EventBasedGateway ;
+    dct:source bpmn:statement-56 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "An Event-Based Gateway uses Message Intermediate Events or Receive Tasks, not both (10.6.6)."@en ,
+                   "Een gebeurtenisgestuurde gateway gebruikt berichtgebeurtenissen of ontvangsttaken, niet beide (10.6.6)."@nl ;
+        sh:select """SELECT $this WHERE {
+            ?f1 a bpmn:SequenceFlow ; bpmn:sourceRef $this ; bpmn:targetRef ?r . ?r a bpmn:ReceiveTask .
+            ?f2 a bpmn:SequenceFlow ; bpmn:sourceRef $this ; bpmn:targetRef ?e . ?e a bpmn:IntermediateCatchEvent ;
+                (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d . ?d a bpmn:MessageEventDefinition }""" ] .
+
+bpmnsh:EventGatewayReceiveTaskShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:ReceiveTask ;
+    dct:source bpmn:statement-57 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A Receive Task after an Event-Based Gateway has no attached Intermediate Events (10.6.6)."@en ,
+                   "Een ontvangsttaak na een gebeurtenisgestuurde gateway heeft geen randgebeurtenissen (10.6.6)."@nl ;
+        sh:select """SELECT $this WHERE { ?f a bpmn:SequenceFlow ; bpmn:targetRef $this ; bpmn:sourceRef ?g . ?g a bpmn:EventBasedGateway .
+            ?b a bpmn:BoundaryEvent ; bpmn:attachedToRef $this }""" ] .
+
+# --- Recommendations (warnings) ----------------------------------------------------------
+
+bpmnsh:ActivityLabelShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:Task , bpmn:SubProcess , bpmn:CallActivity ;
+    sh:property [ sh:path rdfs:label ; sh:minCount 1 ; sh:severity sh:Warning ;
+        sh:message "An activity without a name: readers of the graph (people and agents) cannot tell what happens here."@en ,
+                   "Een activiteit zonder naam: wie de graaf leest (mens of agent) ziet niet wat hier gebeurt."@nl ] .
+
+bpmnsh:BoundaryEventSourceShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:BoundaryEvent ;
+    dct:source bpmn:statement-34 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "An event attached to the boundary of an Activity is the source of a Sequence Flow (10.5.4), unless it has a Compensation trigger."@en ,
+                   "Een gebeurtenis op de rand van een activiteit is de bron van een volgordestroom (10.5.4), behalve met een compensatietrigger."@nl ;
+        sh:select """SELECT $this WHERE {
+            FILTER NOT EXISTS { $this (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d . ?d a bpmn:CompensateEventDefinition }
+            FILTER NOT EXISTS { ?f a bpmn:SequenceFlow ; bpmn:sourceRef $this } }""" ] .
+
+bpmnsh:LinkSingleTargetShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:IntermediateThrowEvent ;
+    dct:source bpmn:statement-44 ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/rules> ;
+        sh:message "A source Link has one target Link, not several with the same name (10.5.4)."@en , "Een bronkoppeling heeft een doelkoppeling, niet meer met dezelfde naam (10.5.4)."@nl ;
+        sh:select """SELECT $this WHERE {
+            $this (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d . ?d a bpmn:LinkEventDefinition .
+            OPTIONAL { ?d bpmn:name ?dn } OPTIONAL { $this bpmn:name ?en }
+            BIND (COALESCE(?dn, ?en, "") AS ?naam)
+            ?t1 a bpmn:IntermediateCatchEvent ; (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d1 . ?d1 a bpmn:LinkEventDefinition .
+            OPTIONAL { ?d1 bpmn:name ?n1 } OPTIONAL { ?t1 bpmn:name ?m1 }
+            ?t2 a bpmn:IntermediateCatchEvent ; (bpmn:eventDefinitions|bpmn:eventDefinitionRefs) ?d2 . ?d2 a bpmn:LinkEventDefinition .
+            OPTIONAL { ?d2 bpmn:name ?n2 } OPTIONAL { ?t2 bpmn:name ?m2 }
+            FILTER (?t1 != ?t2 && COALESCE(?n1, ?m1, "") = ?naam && COALESCE(?n2, ?m2, "") = ?naam) }""" ] .

@@ -1,0 +1,108 @@
+@prefix bpmn:   <https://w3id.org/bpmn#> .
+@prefix bpmnsh: <https://w3id.org/bpmn/shapes#> .
+@prefix am:     <https://purl.org/archimate#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Validation across the two notations (bridge module).
+#
+# Level 3 again: one generic constraint reads the bridge rules as data.
+# Then three consistency checks that no single notation can make. They are
+# warnings, not violations: the models may be right and the link missing,
+# or the other way round; a person decides. Needs ArchiMate in its canonical
+# form (am:source, am:target) in the same graph.
+#################################################################
+
+<https://w3id.org/bpmn/shapes/archimate>
+    a owl:Ontology ;
+    rdfs:label "BPMN to ArchiMate bridge shapes"@en , "Brugshapes BPMN naar ArchiMate"@nl ;
+    owl:versionInfo "0.1.0" ;
+    sh:declare [ sh:prefix "bpmn" ; sh:namespace "https://w3id.org/bpmn#"^^xsd:anyURI ] ,
+               [ sh:prefix "am" ; sh:namespace "https://purl.org/archimate#"^^xsd:anyURI ] ,
+               [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] .
+
+# The bridge link itself: no bridge rule permits this pair.
+bpmnsh:BridgeRuleShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf bpmn:elaborates , bpmn:supportedBy , bpmn:performedBy ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
+        sh:message "No bridge rule permits {?p} from this kind of BPMN element to {?doel}."@en ,
+                   "Geen brugregel staat {?p} toe van deze soort BPMN-element naar {?doel}."@nl ;
+        sh:select """
+            SELECT $this ?p ?doel WHERE {
+                $this ?p ?doel .
+                FILTER (?p IN (bpmn:elaborates, bpmn:supportedBy, bpmn:performedBy))
+                FILTER EXISTS { ?doel a ?x . FILTER (STRSTARTS(STR(?x), "https://purl.org/archimate#")) }
+                FILTER NOT EXISTS {
+                    ?r a bpmn:BridgeRule ; bpmn:bridgeProperty ?p ; bpmn:bpmnType ?bc ; bpmn:archimateType ?ac .
+                    $this a/rdfs:subClassOf* ?bc . ?doel a/rdfs:subClassOf* ?ac .
+                }
+            }""" ] .
+
+bpmnsh:BridgeDiscouragedShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf bpmn:elaborates ;
+    sh:severity sh:Warning ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
+        sh:message "This link is permitted but discouraged: {?uitleg}"@en , "Deze koppeling mag, maar wordt afgeraden: {?uitleg}"@nl ;
+        sh:select """
+            SELECT $this ?uitleg WHERE {
+                $this bpmn:elaborates ?doel . $this a ?bt . ?doel a ?at .
+                ?r a bpmn:BridgeRule ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:bpmnType ?bc ; bpmn:archimateType ?ac ;
+                   bpmn:bridgeStatus "discouraged" ; rdfs:comment ?uitleg .
+                ?bt rdfs:subClassOf* ?bc . ?at rdfs:subClassOf* ?ac .
+            }""" ] .
+
+# Consistency 1: the role of a lane is assigned to the process in ArchiMate.
+bpmnsh:LaneRoleAssignmentShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:Lane ;
+    sh:severity sh:Warning ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
+        sh:message "The lane stands for {?rol} and its process for {?ap}, but ArchiMate has no Assignment from that role to that process."@en ,
+                   "De baan staat voor {?rol} en het proces voor {?ap}, maar in ArchiMate is die rol niet aan dat proces toegewezen."@nl ;
+        sh:select """
+            SELECT $this ?rol ?ap WHERE {
+                $this bpmn:elaborates ?rol .
+                ?proces bpmn:laneSets/bpmn:lanes $this ; bpmn:elaborates ?ap . ?ap a/rdfs:subClassOf* am:Process .
+                FILTER NOT EXISTS { ?rel a am:Assignment ; am:source ?rol ; am:target ?ap }
+            }""" ] .
+
+# Consistency 2: the application that supports a step serves its process.
+bpmnsh:ApplicationServesProcessShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf bpmn:supportedBy ;
+    sh:severity sh:Warning ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
+        sh:message "{?app} supports this step, but in ArchiMate it does not serve the process {?ap} (directly or through a service it realises)."@en ,
+                   "{?app} ondersteunt deze stap, maar bedient in ArchiMate het proces {?ap} niet (direct of via een dienst die hij realiseert)."@nl ;
+        sh:select """
+            SELECT $this ?app ?ap WHERE {
+                $this bpmn:supportedBy ?app .
+                ?proces bpmn:flowElements+ $this ; bpmn:elaborates ?ap . ?ap a/rdfs:subClassOf* am:Process .
+                FILTER NOT EXISTS { ?r1 a am:Serving ; am:source ?app ; am:target ?ap }
+                FILTER NOT EXISTS { ?r2 a am:Realization ; am:source ?app ; am:target ?dienst .
+                                    ?r3 a am:Serving ; am:source ?dienst ; am:target ?ap }
+            }""" ] .
+
+# Consistency 3: two pools exchange messages, so their actors have some relationship.
+bpmnsh:MessagePartnersShape
+    a sh:NodeShape ;
+    sh:targetClass bpmn:MessageFlow ;
+    sh:severity sh:Warning ;
+    sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
+        sh:message "The pools of {?a} and {?b} exchange a message, but ArchiMate has no relationship between them."@en ,
+                   "De pools van {?a} en {?b} wisselen een bericht uit, maar in ArchiMate is er geen relatie tussen die twee."@nl ;
+        sh:select """
+            SELECT DISTINCT $this ?a ?b WHERE {
+                $this bpmn:sourceRef ?s ; bpmn:targetRef ?t .
+                ?p1 a bpmn:Participant ; bpmn:elaborates ?a . ?p2 a bpmn:Participant ; bpmn:elaborates ?b .
+                { ?p1 bpmn:processRef/bpmn:flowElements+ ?s } UNION { FILTER (?s = ?p1) }
+                { ?p2 bpmn:processRef/bpmn:flowElements+ ?t } UNION { FILTER (?t = ?p2) }
+                FILTER (?a != ?b)
+                FILTER NOT EXISTS { ?r am:source ?a ; am:target ?b }
+                FILTER NOT EXISTS { ?r am:source ?b ; am:target ?a }
+            }""" ] .

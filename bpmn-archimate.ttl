@@ -1,0 +1,95 @@
+@prefix bpmn: <https://w3id.org/bpmn#> .
+@prefix am:   <https://purl.org/archimate#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Bridge module: BPMN 2.0 and ArchiMate 4.0, and the meaning of a step.
+#
+# Not part of the OMG metamodel and not part of ArchiMate. Six properties
+# connect a process model to the rest of the organisation's knowledge, and
+# the correspondence between the two notations is data, like the matrices:
+# which BPMN element may elaborate, be supported by or be performed by which
+# ArchiMate concept. The division of labour follows a simple rule: ArchiMate
+# owns the levels down to the business process, BPMN owns the steps.
+#################################################################
+
+<https://w3id.org/bpmn/archimate>
+    a owl:Ontology ;
+    dct:title "BPMN 2.0 in RDF: bridge to ArchiMate 4.0"@en , "BPMN 2.0 in RDF: brug naar ArchiMate 4.0"@nl ;
+    owl:imports <https://w3id.org/bpmn> ;
+    owl:versionInfo "0.1.0" .
+
+# --- The six bridge properties -------------------------------------------------
+
+bpmn:elaborates a owl:ObjectProperty ;
+    rdfs:label "elaborates"@en , "werkt uit"@nl ;
+    rdfs:comment "This BPMN element is the detailed model of that ArchiMate element: the BPMN process of an ArchiMate business process, the lane of a role, the data object of a business object."@en ,
+                 "Dit BPMN-element is het gedetailleerde model van dat ArchiMate-element: het BPMN-proces van een bedrijfsproces, de baan van een rol, het gegevensobject van een bedrijfsobject."@nl .
+
+bpmn:supportedBy a owl:ObjectProperty ;
+    rdfs:label "supported by"@en , "ondersteund door"@nl ;
+    rdfs:comment "An application (or application service or interface, node, system software) supports this activity."@en ,
+                 "Een applicatie (of applicatiedienst, -interface, knooppunt, systeemsoftware) ondersteunt deze activiteit."@nl .
+
+bpmn:performedBy a owl:ObjectProperty ;
+    rdfs:label "performed by"@en , "uitgevoerd door"@nl ;
+    rdfs:comment "A role or actor performs this activity, when that is not already said by its lane."@en ,
+                 "Een rol of actor voert deze activiteit uit, als de baan dat niet al zegt."@nl .
+
+bpmn:meaning a owl:ObjectProperty ;
+    rdfs:label "meaning"@en , "betekenis"@nl ;
+    rdfs:range skos:Concept ;
+    rdfs:comment "The governed concept this element is about: the meaning of a step, a data object or a message."@en ,
+                 "Het vastgestelde begrip waar dit element over gaat: de betekenis van een stap, een gegevensobject of een bericht."@nl .
+
+bpmn:involves a owl:ObjectProperty ;
+    rdfs:label "involves"@en , "betrekt"@nl ;
+    rdfs:range skos:Concept ;
+    rdfs:comment "Concepts that play a role in this element without being its meaning: the applicant in a step that checks an application."@en ,
+                 "Begrippen die een rol spelen in dit element zonder de betekenis ervan te zijn: de aanvrager in een stap die een aanvraag toetst."@nl .
+
+bpmn:appliesRule a owl:ObjectProperty ;
+    rdfs:label "applies rule"@en , "past regel toe"@nl ;
+    rdfs:comment "This activity applies that business rule or decision (for example a DMN decision or an SBVR rule)."@en ,
+                 "Deze activiteit past die bedrijfsregel of beslissing toe (bijvoorbeeld een DMN-beslissing of een SBVR-regel)."@nl .
+
+# --- The correspondence as data -----------------------------------------------------
+
+bpmn:BridgeRule a owl:Class ;
+    rdfs:label "Bridge rule"@en , "Brugregel"@nl ;
+    rdfs:comment "Which BPMN class may be connected by which bridge property to which ArchiMate class. Status permitted or discouraged."@en .
+bpmn:bridgeProperty a owl:ObjectProperty ; rdfs:domain bpmn:BridgeRule .
+bpmn:bpmnType a owl:ObjectProperty ; rdfs:domain bpmn:BridgeRule .
+bpmn:archimateType a owl:ObjectProperty ; rdfs:domain bpmn:BridgeRule .
+bpmn:bridgeStatus a owl:DatatypeProperty ; rdfs:domain bpmn:BridgeRule .
+
+bpmn:bridge-process-process a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Process ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Process ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-subprocess-process a bpmn:BridgeRule ; bpmn:bpmnType bpmn:SubProcess ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Process ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-callactivity-process a bpmn:BridgeRule ; bpmn:bpmnType bpmn:CallActivity ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Process ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-task-process a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Task ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Process ; bpmn:bridgeStatus "discouraged" ;
+    rdfs:comment "A single task as an ArchiMate process: architecture at the level of steps. Usually a sign that the task should be a sub-process, or that the ArchiMate element is too fine-grained."@en .
+bpmn:bridge-lane-role a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Lane ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Role ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-lane-actor a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Lane ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:BusinessActor ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-participant-actor a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Participant ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:BusinessActor ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-participant-role a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Participant ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Role ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-participant-collaboration a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Participant ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Collaboration ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-participant-component a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Participant ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:ApplicationComponent ; bpmn:bridgeStatus "permitted" ;
+    rdfs:comment "A pool that stands for a system."@en .
+bpmn:bridge-collaboration-collaboration a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Collaboration ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Collaboration ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-dataobject-businessobject a bpmn:BridgeRule ; bpmn:bpmnType bpmn:ItemAwareElement ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:BusinessObject ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-dataobject-dataobject a bpmn:BridgeRule ; bpmn:bpmnType bpmn:ItemAwareElement ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:DataObject ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-dataobject-artifact a bpmn:BridgeRule ; bpmn:bpmnType bpmn:ItemAwareElement ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Artifact ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-message-businessobject a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Message ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:BusinessObject ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-message-dataobject a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Message ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:DataObject ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-event-event a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Event ; bpmn:bridgeProperty bpmn:elaborates ; bpmn:archimateType am:Event ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-activity-component a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Activity ; bpmn:bridgeProperty bpmn:supportedBy ; bpmn:archimateType am:ApplicationComponent ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-activity-service a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Activity ; bpmn:bridgeProperty bpmn:supportedBy ; bpmn:archimateType am:Service ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-activity-appinterface a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Activity ; bpmn:bridgeProperty bpmn:supportedBy ; bpmn:archimateType am:ApplicationInterface ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-activity-node a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Activity ; bpmn:bridgeProperty bpmn:supportedBy ; bpmn:archimateType am:Node ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-activity-systemsoftware a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Activity ; bpmn:bridgeProperty bpmn:supportedBy ; bpmn:archimateType am:SystemSoftware ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-activity-role a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Activity ; bpmn:bridgeProperty bpmn:performedBy ; bpmn:archimateType am:Role ; bpmn:bridgeStatus "permitted" .
+bpmn:bridge-activity-actor a bpmn:BridgeRule ; bpmn:bpmnType bpmn:Activity ; bpmn:bridgeProperty bpmn:performedBy ; bpmn:archimateType am:BusinessActor ; bpmn:bridgeStatus "permitted" .

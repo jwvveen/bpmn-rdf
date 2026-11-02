@@ -1,0 +1,62 @@
+@prefix bpmn: <https://w3id.org/bpmn#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex:   <https://example.org/bpmn/example/> .
+@prefix am:   <https://purl.org/archimate#> .
+
+# A small model that is wrong on purpose. Expected results: see README.
+
+ex:collab a bpmn:Collaboration ;
+    bpmn:participants ex:pool-host , ex:pool-platform ;
+    bpmn:messageFlows ex:mf-ok , ex:mf-same-pool , ex:mf-from-start .
+
+ex:pool-host a bpmn:Participant ; rdfs:label "Host"@en ; bpmn:processRef ex:p-host .
+ex:pool-platform a bpmn:Participant ; rdfs:label "Platform"@en ; bpmn:processRef ex:p-platform .
+
+ex:p-host a bpmn:Process ;
+    bpmn:flowElements ex:h-start , ex:h-send , ex:h-end , ex:h-sf1 , ex:h-sf2 .
+ex:h-start a bpmn:StartEvent ; rdfs:label "Listing ready"@en .
+ex:h-send a bpmn:SendTask ; rdfs:label "Provide registration number"@en .
+ex:h-end a bpmn:EndEvent ; rdfs:label "Done"@en .
+ex:h-sf1 a bpmn:SequenceFlow ; bpmn:sourceRef ex:h-start ; bpmn:targetRef ex:h-send .
+ex:h-sf2 a bpmn:SequenceFlow ; bpmn:sourceRef ex:h-send ; bpmn:targetRef ex:h-end .
+
+ex:p-platform a bpmn:Process ;
+    bpmn:flowElements ex:pl-start , ex:pl-check , ex:pl-end , ex:pl-sf1 , ex:pl-sf2 , ex:pl-back , ex:pl-note ,
+                      ex:pl-to-note .
+ex:pl-start a bpmn:StartEvent ; rdfs:label "Number received"@en ;
+    bpmn:eventDefinitions [ a bpmn:MessageEventDefinition ] .
+# A second type from a tool's own vocabulary must not make the matrix fail.
+ex:pl-check a bpmn:ServiceTask , <https://example.org/tool#Step> ; rdfs:label "Check number"@en .
+ex:pl-end a bpmn:EndEvent ; rdfs:label "Checked"@en .
+ex:pl-sf1 a bpmn:SequenceFlow ; bpmn:sourceRef ex:pl-start ; bpmn:targetRef ex:pl-check .
+ex:pl-sf2 a bpmn:SequenceFlow ; bpmn:sourceRef ex:pl-check ; bpmn:targetRef ex:pl-end .
+ex:pl-note a bpmn:TextAnnotation ; bpmn:text "Art. 7 STR Regulation" .
+
+# Wrong 1: a sequence flow back into a start event (Table 7.3 forbids it).
+ex:pl-back a bpmn:SequenceFlow ; bpmn:sourceRef ex:pl-check ; bpmn:targetRef ex:pl-start .
+
+# Wrong 2: a sequence flow to an artifact (no cell: artifacts are never connected by flows, 8.4.1).
+ex:pl-to-note a bpmn:SequenceFlow ; bpmn:sourceRef ex:pl-check ; bpmn:targetRef ex:pl-note .
+
+# Fine: the host sends, the platform's message start event receives.
+ex:mf-ok a bpmn:MessageFlow ; bpmn:sourceRef ex:h-send ; bpmn:targetRef ex:pl-start .
+
+# Wrong 3: a message flow inside one pool (9.4; checked by the rule shapes, not the matrix).
+ex:mf-same-pool a bpmn:MessageFlow ; bpmn:sourceRef ex:pl-check ; bpmn:targetRef ex:pl-end .
+
+# Wrong 4: a message flow out of a start event (Table 7.4: a Message Start Event is never a source).
+ex:mf-from-start a bpmn:MessageFlow ; bpmn:sourceRef ex:h-start ; bpmn:targetRef ex:pl-check .
+
+# The bridge to ArchiMate: one link right, one wrong, one inconsistent.
+ex:am-platform a am:BusinessActor ; rdfs:label "Booking platform"@en .
+ex:am-host a am:BusinessActor ; rdfs:label "Host"@en .
+ex:am-extranet a am:ApplicationComponent ; rdfs:label "Extranet"@en .
+ex:am-onboarding a am:Process ; rdfs:label "Property onboarding"@en .
+ex:pool-host bpmn:elaborates ex:am-host .
+ex:pool-platform bpmn:elaborates ex:am-platform .
+ex:p-platform bpmn:elaborates ex:am-onboarding .
+# Fine: the Extranet supports the check (but ArchiMate has no Serving to the process: warning).
+ex:pl-check bpmn:supportedBy ex:am-extranet .
+# Wrong 5: a start event cannot be supported by an application (no bridge rule).
+ex:pl-start bpmn:supportedBy ex:am-extranet .
+# The host and the platform exchange a message, and ArchiMate has no relationship between them: warning.

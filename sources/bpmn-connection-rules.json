@@ -1,0 +1,853 @@
+{
+  "source": {
+    "spec": "Business Process Model and Notation (BPMN), Version 2.0.2",
+    "omgDocumentNumber": "formal/13-12-09 (printed on the title page as formal/2013-12-09)",
+    "date": "December 2013",
+    "url": "https://www.omg.org/spec/BPMN/2.0.2/PDF",
+    "specPage": "https://www.omg.org/spec/BPMN/2.0.2/",
+    "retrieved": "2026-11-02",
+    "sections": {
+      "sequenceFlow": "7.6.1 Sequence Flow Connections Rules, Table 7.3, printed pages 40-41 (PDF pages 70-71)",
+      "messageFlow": "7.6.2 Message Flow Connection Rules, Table 7.4, printed pages 41-42 (PDF pages 71-72)"
+    },
+    "sectionNumberingNote": "In BPMN 2.0.2 these are clauses 7.6.1 and 7.6.2. In BPMN 2.0 (formal/11-01-03) the same tables are in clauses 7.5.1 and 7.5.2.",
+    "pageNumbers": "All 'page' values are the page numbers printed in the spec footer (PDF page = printed page + 30).",
+    "corroboration": "https://www.omg.org/spec/BPMN/1.2/PDF (formal/09-01-03), Tables 8.4 and 8.5, printed pages 30-31",
+    "metamodel": {
+      "BPMN20.cmof": "https://www.omg.org/spec/BPMN/20100501/BPMN20.cmof",
+      "Infrastructure.cmof": "https://www.omg.org/spec/BPMN/20100502/Infrastructure.cmof",
+      "BPMNDI.cmof": "https://www.omg.org/spec/BPMN/20100501/BPMNDI.cmof",
+      "DC.cmof": "https://www.omg.org/spec/BPMN/20100501/DC.cmof",
+      "DI.cmof": "https://www.omg.org/spec/BPMN/20100501/DI.cmof",
+      "BPMN20.xsd": "https://www.omg.org/spec/BPMN/20100501/BPMN20.xsd",
+      "Semantic.xsd": "https://www.omg.org/spec/BPMN/20100501/Semantic.xsd",
+      "BPMNDI.xsd": "https://www.omg.org/spec/BPMN/20100501/BPMNDI.xsd",
+      "DC.xsd": "https://www.omg.org/spec/BPMN/20100501/DC.xsd",
+      "DI.xsd": "https://www.omg.org/spec/BPMN/20100501/DI.xsd",
+      "BPMN20-FromXMI.xslt": "https://www.omg.org/spec/BPMN/20100501/BPMN20-FromXMI.xslt"
+    },
+    "namespaces": {
+      "model": "http://www.omg.org/spec/BPMN/20100524/MODEL",
+      "bpmndi": "http://www.omg.org/spec/BPMN/20100524/DI",
+      "dc": "http://www.omg.org/spec/DD/20100524/DC",
+      "di": "http://www.omg.org/spec/DD/20100524/DI",
+      "cmofPackageUri": "http://www.omg.org/spec/BPMN/20100524/MODEL-XMI"
+    }
+  },
+  "sequenceFlow": {
+    "table": "Table 7.3 - Sequence Flow Connection Rules",
+    "reading": "Row = source (From), column = target (To). allowed=true where the spec cell carries the connection symbol, false where the cell is empty.",
+    "objects": [
+      {
+        "id": "StartEvent",
+        "label": "Start Event",
+        "shape": "thin single circle"
+      },
+      {
+        "id": "Task",
+        "label": "Activity (Task)",
+        "shape": "rounded rectangle",
+        "note": "Per the note under the table, Activity shapes represent Activities and Sub-Processes for Processes, and Choreography Activities and Sub-Choreographies for Choreography."
+      },
+      {
+        "id": "SubProcess",
+        "label": "Activity (collapsed Sub-Process)",
+        "shape": "rounded rectangle with plus marker"
+      },
+      {
+        "id": "Gateway",
+        "label": "Gateway",
+        "shape": "diamond"
+      },
+      {
+        "id": "IntermediateEvent",
+        "label": "Intermediate Event",
+        "shape": "thin double circle"
+      },
+      {
+        "id": "EndEvent",
+        "label": "End Event",
+        "shape": "thick single circle"
+      }
+    ],
+    "rules": [
+      {
+        "from": "StartEvent",
+        "to": "StartEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "StartEvent",
+        "to": "Task",
+        "allowed": true,
+        "note": "Cell printed as the character U+2030 (per mille sign) in ArialMT instead of the Wingdings arrow used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03 and the 2.0.2 changebar PDF). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.4 shows the arrow, and the normative text of clause 10.3 (p. 151: 'An Activity MAY be a target for Sequence Flows') permits it."
+      },
+      {
+        "from": "StartEvent",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "StartEvent",
+        "to": "Gateway",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "StartEvent",
+        "to": "IntermediateEvent",
+        "allowed": true,
+        "note": "Column applies to Intermediate Events in normal flow; an Intermediate Event attached to an Activity boundary MUST NOT be a target for a Sequence Flow (clause 10.5.4, p. 258)."
+      },
+      {
+        "from": "StartEvent",
+        "to": "EndEvent",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "Task",
+        "to": "StartEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "Task",
+        "to": "Task",
+        "allowed": true,
+        "note": "Cell printed as the character U+2030 (per mille sign) in ArialMT instead of the Wingdings arrow used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03 and the 2.0.2 changebar PDF). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.4 shows the arrow, and the normative text of clause 10.3 (p. 151: 'An Activity MAY be a target for Sequence Flows') permits it."
+      },
+      {
+        "from": "Task",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "Task",
+        "to": "Gateway",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "Task",
+        "to": "IntermediateEvent",
+        "allowed": true,
+        "note": "Column applies to Intermediate Events in normal flow; an Intermediate Event attached to an Activity boundary MUST NOT be a target for a Sequence Flow (clause 10.5.4, p. 258)."
+      },
+      {
+        "from": "Task",
+        "to": "EndEvent",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "SubProcess",
+        "to": "StartEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "SubProcess",
+        "to": "Task",
+        "allowed": true,
+        "note": "Cell printed as the character U+2030 (per mille sign) in ArialMT instead of the Wingdings arrow used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03 and the 2.0.2 changebar PDF). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.4 shows the arrow, and the normative text of clause 10.3 (p. 151: 'An Activity MAY be a target for Sequence Flows') permits it."
+      },
+      {
+        "from": "SubProcess",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "SubProcess",
+        "to": "Gateway",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "SubProcess",
+        "to": "IntermediateEvent",
+        "allowed": true,
+        "note": "Column applies to Intermediate Events in normal flow; an Intermediate Event attached to an Activity boundary MUST NOT be a target for a Sequence Flow (clause 10.5.4, p. 258)."
+      },
+      {
+        "from": "SubProcess",
+        "to": "EndEvent",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "Gateway",
+        "to": "StartEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "Gateway",
+        "to": "Task",
+        "allowed": true,
+        "note": "Cell printed as the character U+2030 (per mille sign) in ArialMT instead of the Wingdings arrow used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03 and the 2.0.2 changebar PDF). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.4 shows the arrow, and the normative text of clause 10.3 (p. 151: 'An Activity MAY be a target for Sequence Flows') permits it."
+      },
+      {
+        "from": "Gateway",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "Gateway",
+        "to": "Gateway",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "Gateway",
+        "to": "IntermediateEvent",
+        "allowed": true,
+        "note": "Column applies to Intermediate Events in normal flow; an Intermediate Event attached to an Activity boundary MUST NOT be a target for a Sequence Flow (clause 10.5.4, p. 258)."
+      },
+      {
+        "from": "Gateway",
+        "to": "EndEvent",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "IntermediateEvent",
+        "to": "StartEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "IntermediateEvent",
+        "to": "Task",
+        "allowed": true,
+        "note": "Cell printed as the character U+2030 (per mille sign) in ArialMT instead of the Wingdings arrow used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03 and the 2.0.2 changebar PDF). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.4 shows the arrow, and the normative text of clause 10.3 (p. 151: 'An Activity MAY be a target for Sequence Flows') permits it."
+      },
+      {
+        "from": "IntermediateEvent",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "IntermediateEvent",
+        "to": "Gateway",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "IntermediateEvent",
+        "to": "IntermediateEvent",
+        "allowed": true,
+        "note": "Column applies to Intermediate Events in normal flow; an Intermediate Event attached to an Activity boundary MUST NOT be a target for a Sequence Flow (clause 10.5.4, p. 258)."
+      },
+      {
+        "from": "IntermediateEvent",
+        "to": "EndEvent",
+        "allowed": true,
+        "note": null
+      },
+      {
+        "from": "EndEvent",
+        "to": "StartEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "EndEvent",
+        "to": "Task",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "EndEvent",
+        "to": "SubProcess",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "EndEvent",
+        "to": "Gateway",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "EndEvent",
+        "to": "IntermediateEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "EndEvent",
+        "to": "EndEvent",
+        "allowed": false,
+        "note": null
+      }
+    ],
+    "footnotes": [
+      "Only those objects that can have incoming and/or outgoing Sequence Flows are shown in the table. Thus, Pool, Lane, Data Object, Group, and Text Annotation are not listed in the table. Also, the Activity shapes in the table represent Activities and Sub-Processes for Processes, and Choreography Activities and Sub-Choreographies for Choreography.",
+      "The quantity of connections into and out of an object is subject to various configuration dependencies are not specified here. Refer to the sub clauses in the next clause for each individual object for more detailed information on the appropriate connection rules.",
+      "Note that if a Sub-Process has been expanded within a Diagram, the objects within the Sub-Process cannot be connected to objects outside of the Sub-Process, nor can Sequence Flows cross a Pool boundary."
+    ]
+  },
+  "messageFlow": {
+    "table": "Table 7.4 - Message Flow Connection Rules",
+    "reading": "Row = source (From), column = target (To). allowed=true where the spec cell carries the connection symbol, false where the cell is empty.",
+    "objects": [
+      {
+        "id": "MessageStartEvent",
+        "label": "Message Start Event",
+        "shape": "thin circle with open (unfilled) envelope"
+      },
+      {
+        "id": "Pool",
+        "label": "Pool",
+        "shape": "horizontal pool with vertical 'Name' band"
+      },
+      {
+        "id": "Task",
+        "label": "Activity (Task)",
+        "shape": "rounded rectangle"
+      },
+      {
+        "id": "SubProcess",
+        "label": "Activity (collapsed Sub-Process)",
+        "shape": "rounded rectangle with plus marker"
+      },
+      {
+        "id": "MessageIntermediateEvent",
+        "label": "Message Intermediate Event",
+        "shape": "double circle with envelope; column header shows the catching (open envelope) form, row header shows the throwing (filled envelope) form"
+      },
+      {
+        "id": "MessageEndEvent",
+        "label": "Message End Event",
+        "shape": "thick circle with filled envelope"
+      }
+    ],
+    "rules": [
+      {
+        "from": "MessageStartEvent",
+        "to": "MessageStartEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "MessageStartEvent",
+        "to": "Pool",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "MessageStartEvent",
+        "to": "Task",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "MessageStartEvent",
+        "to": "SubProcess",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "MessageStartEvent",
+        "to": "MessageIntermediateEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "MessageStartEvent",
+        "to": "MessageEndEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "Pool",
+        "to": "MessageStartEvent",
+        "allowed": true,
+        "note": "Cell printed as the character U+02C6 (modifier circumflex) in ArialMT instead of the Wingdings Message Flow symbol used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.5 shows the symbol, and clause 10.5.2 (p. 245) states 'A Start Event MAY be the target for a Message Flow'. Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Pool",
+        "to": "Pool",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Pool",
+        "to": "Task",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Pool",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Pool",
+        "to": "MessageIntermediateEvent",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Pool",
+        "to": "MessageEndEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "Task",
+        "to": "MessageStartEvent",
+        "allowed": true,
+        "note": "Cell printed as the character U+02C6 (modifier circumflex) in ArialMT instead of the Wingdings Message Flow symbol used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.5 shows the symbol, and clause 10.5.2 (p. 245) states 'A Start Event MAY be the target for a Message Flow'. Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Task",
+        "to": "Pool",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Task",
+        "to": "Task",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Task",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Task",
+        "to": "MessageIntermediateEvent",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "Task",
+        "to": "MessageEndEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "SubProcess",
+        "to": "MessageStartEvent",
+        "allowed": true,
+        "note": "Cell printed as the character U+02C6 (modifier circumflex) in ArialMT instead of the Wingdings Message Flow symbol used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.5 shows the symbol, and clause 10.5.2 (p. 245) states 'A Start Event MAY be the target for a Message Flow'. Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "SubProcess",
+        "to": "Pool",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "SubProcess",
+        "to": "Task",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "SubProcess",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "SubProcess",
+        "to": "MessageIntermediateEvent",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "SubProcess",
+        "to": "MessageEndEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "MessageIntermediateEvent",
+        "to": "MessageStartEvent",
+        "allowed": true,
+        "note": "Cell printed as the character U+02C6 (modifier circumflex) in ArialMT instead of the Wingdings Message Flow symbol used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.5 shows the symbol, and clause 10.5.2 (p. 245) states 'A Start Event MAY be the target for a Message Flow'. Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageIntermediateEvent",
+        "to": "Pool",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageIntermediateEvent",
+        "to": "Task",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageIntermediateEvent",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageIntermediateEvent",
+        "to": "MessageIntermediateEvent",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119). A Message Intermediate Event MAY have an incoming or an outgoing Message Flow, but not both (p. 259)."
+      },
+      {
+        "from": "MessageIntermediateEvent",
+        "to": "MessageEndEvent",
+        "allowed": false,
+        "note": null
+      },
+      {
+        "from": "MessageEndEvent",
+        "to": "MessageStartEvent",
+        "allowed": true,
+        "note": "Cell printed as the character U+02C6 (modifier circumflex) in ArialMT instead of the Wingdings Message Flow symbol used in the other allowed cells (a font rendering defect in the published PDF; same defect in BPMN 2.0 formal/11-01-03). Read as allowed: the corresponding cell in BPMN 1.2 (formal/09-01-03) Table 8.5 shows the symbol, and clause 10.5.2 (p. 245) states 'A Start Event MAY be the target for a Message Flow'. Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageEndEvent",
+        "to": "Pool",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageEndEvent",
+        "to": "Task",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageEndEvent",
+        "to": "SubProcess",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageEndEvent",
+        "to": "MessageIntermediateEvent",
+        "allowed": true,
+        "note": "Only when source and target are in different Pools (clause 7.6.2 p. 41; clause 9.4 p. 119)."
+      },
+      {
+        "from": "MessageEndEvent",
+        "to": "MessageEndEvent",
+        "allowed": false,
+        "note": null
+      }
+    ],
+    "footnotes": [
+      "Only those objects that can have incoming and/or outgoing Message Flows are shown in the table. Thus, Lane, Gateway, Data Object, Group, and Text Annotation are not listed in the table.",
+      "The quantity of connections into and out of an object is subject to various configuration dependencies that are not specified here. Refer to the sub clauses in the next clause for each individual object for more detailed information on the appropriate connection rules.",
+      "Note that Message Flows cannot connect to objects that are within the same Pool."
+    ]
+  },
+  "constraints": [
+    {
+      "section": "7.6",
+      "page": "40",
+      "text": "An incoming Sequence Flow can connect to any location on a Flow Object (left, right, top, or bottom). Likewise, an outgoing Sequence Flow can connect from any location on a Flow Object (left, right, top, or bottom). A Message Flow also has this capability."
+    },
+    {
+      "section": "7.6.1",
+      "page": "40",
+      "text": "These rules apply to the connections within a Process Diagram and within a Choreography Diagram."
+    },
+    {
+      "section": "7.6.1",
+      "page": "40",
+      "text": "Note that if a Sub-Process has been expanded within a Diagram, the objects within the Sub-Process cannot be connected to objects outside of the Sub-Process, nor can Sequence Flows cross a Pool boundary."
+    },
+    {
+      "section": "7.6.2",
+      "page": "41",
+      "text": "These rules apply to the connections within a Collaboration Diagram."
+    },
+    {
+      "section": "7.6.2",
+      "page": "41",
+      "text": "Note that Message Flows cannot connect to objects that are within the same Pool."
+    },
+    {
+      "section": "7.2.1 Uses of BPMN; also 10.2.1.1 Private (Internal) Business Processes",
+      "page": "21; 147-148",
+      "text": "The Process flow is therefore contained within the Pool and cannot cross the boundaries of the Pool. The flow of Messages can cross the Pool boundary to show the interactions that exist between separate private Business Processes."
+    },
+    {
+      "section": "8.4.1 Artifacts, Artifact Sequence Flow Connections",
+      "page": "65",
+      "text": "An Artifact MUST NOT be a target for a Sequence Flow."
+    },
+    {
+      "section": "8.4.1 Artifacts, Artifact Sequence Flow Connections",
+      "page": "65",
+      "text": "An Artifact MUST NOT be a source for a Sequence Flow."
+    },
+    {
+      "section": "8.4.1 Artifacts, Artifact Message Flow Connections",
+      "page": "65",
+      "text": "An Artifact MUST NOT be a target for a Message Flow."
+    },
+    {
+      "section": "8.4.1 Artifacts, Artifact Message Flow Connections",
+      "page": "65",
+      "text": "An Artifact MUST NOT be a source for a Message Flow."
+    },
+    {
+      "section": "8.4.13 Sequence Flow",
+      "page": "95",
+      "text": "Each Sequence Flow has only one source and only one target. The source and target MUST be from the set of the following Flow Elements: Events (Start, Intermediate, and End), Activities (Task and Sub-Process; for Processes), Choreography Activities (Choreography Task and Sub-Choreography; for Choreographies), and Gateways."
+    },
+    {
+      "section": "8.4.13 Sequence Flow",
+      "page": "95",
+      "text": "If a conditional Sequence Flow is used from a source Activity, then there MUST be at least one other outgoing Sequence Flow from that Activity."
+    },
+    {
+      "section": "8.4.13 Sequence Flow",
+      "page": "95",
+      "text": "A source Gateway MUST NOT be of type Parallel or Event."
+    },
+    {
+      "section": "9.4 Message Flow",
+      "page": "119",
+      "text": "A Message Flow MUST connect two separate Pools. They connect either to the Pool boundary or to Flow Objects within the Pool boundary. They MUST NOT connect two objects within the same Pool."
+    },
+    {
+      "section": "10.3 Activities, Sequence Flow Connections",
+      "page": "151",
+      "text": "An Activity MAY be a target for Sequence Flows; it can have multiple incoming Sequence Flows."
+    },
+    {
+      "section": "10.3 Activities, Sequence Flow Connections",
+      "page": "151",
+      "text": "An Activity MAY be a source for Sequence Flows; it can have multiple outgoing Sequence Flows."
+    },
+    {
+      "section": "10.3 Activities, Message Flow Connections",
+      "page": "152",
+      "text": "NOTE: All Message Flows MUST connect two separate Pools. They MAY connect to the Pool boundary or to Flow Objects within the Pool boundary. They MUST NOT connect two objects within the same Pool."
+    },
+    {
+      "section": "10.3 Activities, Message Flow Connections",
+      "page": "152",
+      "text": "An Activity MAY be the target of a Message Flow; it can have zero (0) or more incoming Message Flows."
+    },
+    {
+      "section": "10.3 Activities, Message Flow Connections",
+      "page": "152",
+      "text": "An Activity MAY be a source of a Message Flow; it can have zero (0) or more outgoing Message Flows."
+    },
+    {
+      "section": "10.3.5 Sub-Processes (Event Sub-Process)",
+      "page": "174",
+      "text": "An Event Sub-Process MUST NOT have any incoming or outgoing Sequence Flows."
+    },
+    {
+      "section": "10.5.2 Start Event, Sequence Flow Connections",
+      "page": "244",
+      "text": "A Start Event MUST NOT be a target for Sequence Flows; it MUST NOT have incoming Sequence Flows."
+    },
+    {
+      "section": "10.5.2 Start Event, Sequence Flow Connections",
+      "page": "244",
+      "text": "An exception to this is when a Start Event is used in an Expanded Sub-Process and is attached to the boundary of that Sub-Process. In this case, a Sequence Flow from the higher-level Process MAY connect to that Start Event in lieu of connecting to the actual boundary of the Sub-Process."
+    },
+    {
+      "section": "10.5.2 Start Event, Sequence Flow Connections",
+      "page": "244",
+      "text": "A Start Event MUST be a source for a Sequence Flow."
+    },
+    {
+      "section": "10.5.2 Start Event, Sequence Flow Connections",
+      "page": "244",
+      "text": "The conditionExpression attribute for all outgoing Sequence Flows MUST be set to None."
+    },
+    {
+      "section": "10.5.2 Start Event, Message Flow Connections",
+      "page": "245",
+      "text": "A Start Event MAY be the target for a Message Flow; it can have zero (0) or more incoming Message Flows."
+    },
+    {
+      "section": "10.5.2 Start Event, Message Flow Connections",
+      "page": "245",
+      "text": "A Start Event MUST NOT be a source for a Message Flow; it MUST NOT have outgoing Message Flows."
+    },
+    {
+      "section": "10.5.3 End Event, Sequence Flow Connections",
+      "page": "248",
+      "text": "An End Event MUST be a target for a Sequence Flow."
+    },
+    {
+      "section": "10.5.3 End Event, Sequence Flow Connections",
+      "page": "248",
+      "text": "An End Event MUST NOT be a source for Sequence Flows; that is, there MUST NOT be outgoing Sequence Flows."
+    },
+    {
+      "section": "10.5.3 End Event, Sequence Flow Connections",
+      "page": "248",
+      "text": "An exception to this is when an End Event is used in an Expanded Sub-Process and is attached to the boundary of that Sub-Process. In this case, a Sequence Flow from the higher-level Process MAY connect from that End Event in lieu of connecting from the actual boundary of the Sub-Process."
+    },
+    {
+      "section": "10.5.3 End Event, Message Flow Connections",
+      "page": "248",
+      "text": "An End Event MUST NOT be the target of a Message Flow; it can have no incoming Message Flows."
+    },
+    {
+      "section": "10.5.3 End Event, Message Flow Connections",
+      "page": "248",
+      "text": "An End Event MAY be the source of a Message Flow; it can have zero (0) or more outgoing Message Flows."
+    },
+    {
+      "section": "10.5.3 End Event, Message Flow Connections",
+      "page": "248",
+      "text": "The Result attribute of the End Event MUST be set to Message or Multiple if there are any outgoing Message Flows."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "If the Intermediate Event is attached to the boundary of an Activity: The Intermediate Event MUST NOT be a target for a Sequence Flow; it cannot have an incoming Sequence Flows."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "The Intermediate Event MUST be a source for a Sequence Flow."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "An exception to this: an Intermediate Event with a Compensation trigger MUST NOT have an outgoing Sequence Flow (it MAY have an outgoing Association)."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "The Intermediate Events with the following triggers (EventDefinition) MAY be used in normal flow: None, Message, Timer, Escalation, Compensation, Conditional, Link, Signal, Multiple, and ParallelMultiple. Thus, the following MUST NOT: Cancel and Error."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "If the Intermediate Event is used within normal flow: Intermediate Events MUST be a target of a Sequence Flow. NOTE: This is a change from BPMN 1.2 semantics, which allowed some Intermediate Events to not have an incoming Sequence Flow."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "An Intermediate Event MUST be a source for a Sequence Flow."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "An exception to this: a source Link Intermediate Event (as defined below), it is NOT REQUIRED to have an outgoing Sequence Flow."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "A Link Intermediate Event MUST NOT be both a target and a source of a Sequence Flow."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "A Link Intermediate Event MAY be the target (target Link) or a source (source Link) of a Sequence Flow, but MUST NOT be both a target and a source."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "If there is a source Link, there MUST be a matching target Link (they have the same name)."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "There MAY be multiple source Links for a single target Link."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Sequence Flow Connections",
+      "page": "258",
+      "text": "There MUST NOT be multiple target Links for a single source Link."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Message Flow Connections",
+      "page": "259",
+      "text": "A Message Intermediate Event MAY be the target for a Message Flow; it can have one incoming Message Flow."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Message Flow Connections",
+      "page": "259",
+      "text": "A Message Intermediate Event MAY be a source for a Message Flow; it can have one outgoing Message Flow."
+    },
+    {
+      "section": "10.5.4 Intermediate Event, Message Flow Connections",
+      "page": "259",
+      "text": "A Message Intermediate Event MAY have an incoming Message Flow or an outgoing Message Flow, but not both."
+    },
+    {
+      "section": "10.6.1 Gateway, Sequence Flow Connections",
+      "page": "288",
+      "text": "A Gateway MAY be a target for a Sequence Flow. It can have zero (0), one (1), or more incoming Sequence Flows."
+    },
+    {
+      "section": "10.6.1 Gateway, Sequence Flow Connections",
+      "page": "289",
+      "text": "A Gateway MAY be a source of a Sequence Flow; it can have zero, one, or more outgoing Sequence Flows."
+    },
+    {
+      "section": "10.6.1 Gateway, Sequence Flow Connections",
+      "page": "289",
+      "text": "A Gateway MUST have either multiple incoming Sequence Flows or multiple outgoing Sequence Flows (i.e., it MUST merge or split the flow)."
+    },
+    {
+      "section": "10.6.1 Gateway, Sequence Flow Connections",
+      "page": "289",
+      "text": "A Gateway with a gatewayDirection of converging MUST have multiple incoming Sequence Flows, but MUST NOT have multiple outgoing Sequence Flows."
+    },
+    {
+      "section": "10.6.1 Gateway, Sequence Flow Connections",
+      "page": "289",
+      "text": "A Gateway with a gatewayDirection of diverging MUST have multiple outgoing Sequence Flows, but MUST NOT have multiple incoming Sequence Flows."
+    },
+    {
+      "section": "10.6.6 Event-Based Gateway",
+      "page": "296",
+      "text": "An Event Gateway MUST have two or more outgoing Sequence Flows."
+    },
+    {
+      "section": "10.6.6 Event-Based Gateway",
+      "page": "296",
+      "text": "The outgoing Sequence Flows of the Event Gateway MUST NOT have a conditionExpression."
+    },
+    {
+      "section": "10.6.6 Event-Based Gateway",
+      "page": "297",
+      "text": "Event-Based Gateways are configured by having outgoing Sequence Flows target an Intermediate Event or a Receive Task in any combination (see Figure 10.116 and Figure 10.117) except that:"
+    },
+    {
+      "section": "10.6.6 Event-Based Gateway",
+      "page": "297",
+      "text": "If Message Intermediate Events are used in the configuration, then Receive Tasks MUST NOT be used in that configuration and vice versa."
+    },
+    {
+      "section": "10.6.6 Event-Based Gateway",
+      "page": "297",
+      "text": "Receive Tasks used in an Event Gateway configuration MUST NOT have any attached Intermediate Events."
+    },
+    {
+      "section": "10.6.6 Event-Based Gateway",
+      "page": "297",
+      "text": "Only the following Intermediate Event triggers are valid: Message, Signal, Timer, Conditional, and Multiple (which can only include the previous triggers). Thus, the following Intermediate Event triggers are not valid: Error, Cancel, Compensation, and Link."
+    },
+    {
+      "section": "10.6.6 Event-Based Gateway",
+      "page": "297",
+      "text": "Target elements in an Event Gateway configuration MUST NOT have any additional incoming Sequence Flows (other than that from the Event Gateway)."
+    }
+  ]
+}
