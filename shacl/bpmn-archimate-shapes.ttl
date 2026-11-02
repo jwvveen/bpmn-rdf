@@ -30,7 +30,7 @@ bpmnsh:BridgeRuleShape
     sh:targetSubjectsOf bpmn:elaborates , bpmn:supportedBy , bpmn:performedBy ;
     sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
         sh:message "No bridge rule permits {?p} from this kind of BPMN element to {?doel}."@en ,
-                   "Geen brugregel staat {?p} toe van deze soort BPMN-element naar {?doel}."@nl ;
+                   "Geen brugregel staat {?p} toe van deze soort BPMN-element naar {?doel}."@nl , "Keine Brückenregel erlaubt {?p} von dieser Art BPMN-Element zu {?doel}."@de , "Aucune règle de pont n'autorise {?p} de ce type d'élément BPMN vers {?doel}."@fr ;
         sh:select """
             SELECT $this ?p ?doel WHERE {
                 $this ?p ?doel .
@@ -47,7 +47,7 @@ bpmnsh:BridgeDiscouragedShape
     sh:targetSubjectsOf bpmn:elaborates ;
     sh:severity sh:Warning ;
     sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
-        sh:message "This link is permitted but discouraged: {?uitleg}"@en , "Deze koppeling mag, maar wordt afgeraden: {?uitleg}"@nl ;
+        sh:message "This link is permitted but discouraged: {?uitleg}"@en , "Deze koppeling mag, maar wordt afgeraden: {?uitleg}"@nl , "Diese Verknüpfung ist erlaubt, wird aber nicht empfohlen: {?uitleg}"@de , "Ce lien est autorisé mais déconseillé : {?uitleg}"@fr ;
         sh:select """
             SELECT $this ?uitleg WHERE {
                 $this bpmn:elaborates ?doel . $this a ?bt . ?doel a ?at .
@@ -63,7 +63,7 @@ bpmnsh:LaneRoleAssignmentShape
     sh:severity sh:Warning ;
     sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
         sh:message "The lane stands for {?rol} and its process for {?ap}, but ArchiMate has no Assignment from that role to that process."@en ,
-                   "De baan staat voor {?rol} en het proces voor {?ap}, maar in ArchiMate is die rol niet aan dat proces toegewezen."@nl ;
+                   "De baan staat voor {?rol} en het proces voor {?ap}, maar in ArchiMate is die rol niet aan dat proces toegewezen."@nl , "Die Lane steht für {?rol} und der Prozess für {?ap}, aber in ArchiMate ist diese Rolle diesem Prozess nicht zugewiesen."@de , "Le couloir représente {?rol} et le processus {?ap}, mais dans ArchiMate ce rôle n'est pas affecté à ce processus."@fr ;
         sh:select """
             SELECT $this ?rol ?ap WHERE {
                 $this bpmn:elaborates ?rol .
@@ -78,7 +78,7 @@ bpmnsh:ApplicationServesProcessShape
     sh:severity sh:Warning ;
     sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
         sh:message "{?app} supports this step, but in ArchiMate it does not serve the process {?ap} (directly or through a service it realises)."@en ,
-                   "{?app} ondersteunt deze stap, maar bedient in ArchiMate het proces {?ap} niet (direct of via een dienst die hij realiseert)."@nl ;
+                   "{?app} ondersteunt deze stap, maar bedient in ArchiMate het proces {?ap} niet (direct of via een dienst die hij realiseert)."@nl , "{?app} unterstützt diesen Schritt, bedient in ArchiMate aber nicht den Prozess {?ap} (direkt oder über einen Dienst, den es realisiert)."@de , "{?app} prend en charge cette étape, mais dans ArchiMate ne sert pas le processus {?ap} (directement ou via un service qu'il réalise)."@fr ;
         sh:select """
             SELECT $this ?app ?ap WHERE {
                 $this bpmn:supportedBy ?app .
@@ -95,7 +95,7 @@ bpmnsh:MessagePartnersShape
     sh:severity sh:Warning ;
     sh:sparql [ a sh:SPARQLConstraint ; sh:prefixes <https://w3id.org/bpmn/shapes/archimate> ;
         sh:message "The pools of {?a} and {?b} exchange a message, but ArchiMate has no relationship between them."@en ,
-                   "De pools van {?a} en {?b} wisselen een bericht uit, maar in ArchiMate is er geen relatie tussen die twee."@nl ;
+                   "De pools van {?a} en {?b} wisselen een bericht uit, maar in ArchiMate is er geen relatie tussen die twee."@nl , "Die Pools von {?a} und {?b} tauschen eine Nachricht aus, aber in ArchiMate gibt es keine Beziehung zwischen ihnen."@de , "Les pools de {?a} et {?b} échangent un message, mais dans ArchiMate il n'y a aucune relation entre eux."@fr ;
         sh:select """
             SELECT DISTINCT $this ?a ?b WHERE {
                 $this bpmn:sourceRef ?s ; bpmn:targetRef ?t .

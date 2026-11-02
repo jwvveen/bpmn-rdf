@@ -32,7 +32,7 @@ bpmnsh:MatrixForbiddenShape
     sh:targetClass bpmn:SequenceFlow , bpmn:MessageFlow ;
     sh:sparql [
         a sh:SPARQLConstraint ;
-        sh:message "{?cell} forbids this connection."@en , "{?cell} verbiedt deze verbinding."@nl ;
+        sh:message "{?cell} forbids this connection."@en , "{?cell} verbiedt deze verbinding."@nl , "{?cell} verbietet diese Verbindung."@de , "{?cell} interdit cette connexion."@fr ;
         sh:prefixes <https://w3id.org/bpmn/shapes/matrix> ;
         sh:select """
             SELECT $this ?cell WHERE {
@@ -67,7 +67,7 @@ bpmnsh:MatrixNoCellShape
     sh:sparql [
         a sh:SPARQLConstraint ;
         sh:message "No cell of Table 7.3 or 7.4 permits a flow of this type between these two kinds of element."@en ,
-                   "Geen cel van tabel 7.3 of 7.4 staat een stroom van deze soort toe tussen deze twee soorten element."@nl ;
+                   "Geen cel van tabel 7.3 of 7.4 staat een stroom van deze soort toe tussen deze twee soorten element."@nl , "Keine Zelle der Tabelle 7.3 oder 7.4 erlaubt einen Fluss dieser Art zwischen diesen beiden Elementarten."@de , "Aucune cellule du tableau 7.3 ou 7.4 n'autorise un flux de ce type entre ces deux sortes d'éléments."@fr ;
         sh:prefixes <https://w3id.org/bpmn/shapes/matrix> ;
         sh:select """
             SELECT $this WHERE {
