@@ -82,8 +82,10 @@ and OMG has no official RDF form of BPMN. The namespace
 
 * **A printing error in the specification.** In the published BPMN 2.0.2 PDF,
   ten cells show a per mille sign or a circumflex where an arrow belongs: the
-  whole Task column of Table 7.3 and the whole Message Start Event column of
-  Table 7.4. Read literally, no sequence flow may enter a task. The matrix
+  whole column of the plain activity shape (a task) in Table 7.3, and the whole
+  Message Start Event column of Table 7.4. Read literally, no sequence flow may
+  enter a task. The defect is open OMG issue
+  [BPMN21-453](https://issues.omg.org/issues/BPMN21-453) (April 2026). The matrix
   records these cells as permitted, with the evidence (BPMN 1.2 and the
   normative text) in the cell.
 

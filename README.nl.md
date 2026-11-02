@@ -42,7 +42,9 @@ OMG, en OMG heeft geen officiële RDF-vorm van BPMN. De namespace
 * **Ontologie en validatie zijn gescheiden**, en alles is **tweetalig**.
 * **Een drukfout in de specificatie.** In de BPMN 2.0.2-PDF staan in tien cellen
   een promilleteken of een accent circonflexe in plaats van een pijl: de hele
-  kolom Task in tabel 7.3 en de hele kolom Message Start Event in tabel 7.4. De
+  kolom van de gewone activiteitsvorm (een taak) in tabel 7.3 en de hele kolom
+  Message Start Event in tabel 7.4. Het defect staat open als OMG-issue
+  [BPMN21-453](https://issues.omg.org/issues/BPMN21-453) (april 2026). De
   matrix neemt ze op als toegestaan, met het bewijs in de cel.
 
 ## Valideren
