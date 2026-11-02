@@ -149,7 +149,7 @@ them. The OMG metamodel and the earlier ontologies are not redistributed here.
 ## Earlier work
 
 This builds on, and aligns with, earlier BPMN ontologies: the FBK BPMN 1.1
-and 2.0 ontologies, BBO, and sBPMN 2.0 (Krause, 2025), which is the closest
+and 2.0 ontologies, BBO, and sBPMN 2.0 (Krause et al., 2025), which is the closest
 to this draft. `sources/prior-work.md` compares them. The alignment file uses
 `skos:exactMatch` only; no `owl:equivalentClass`, so loading it never imports
 another ontology's axioms.
