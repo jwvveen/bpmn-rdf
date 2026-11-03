@@ -1,6 +1,6 @@
 @prefix bpmn:   <https://w3id.org/bpmn#> .
 @prefix bpmnsh: <https://w3id.org/bpmn/shapes#> .
-@prefix am:     <https://purl.org/archimate#> .
+@prefix am:     <https://w3id.org/archimate#> .
 @prefix owl:    <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sh:     <http://www.w3.org/ns/shacl#> .
@@ -21,7 +21,7 @@
     rdfs:label "BPMN to ArchiMate bridge shapes"@en , "Brugshapes BPMN naar ArchiMate"@nl ;
     owl:versionInfo "0.1.0" ;
     sh:declare [ sh:prefix "bpmn" ; sh:namespace "https://w3id.org/bpmn#"^^xsd:anyURI ] ,
-               [ sh:prefix "am" ; sh:namespace "https://purl.org/archimate#"^^xsd:anyURI ] ,
+               [ sh:prefix "am" ; sh:namespace "https://w3id.org/archimate#"^^xsd:anyURI ] ,
                [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] .
 
 # The bridge link itself: no bridge rule permits this pair.
@@ -35,7 +35,7 @@ bpmnsh:BridgeRuleShape
             SELECT $this ?p ?doel WHERE {
                 $this ?p ?doel .
                 FILTER (?p IN (bpmn:elaborates, bpmn:supportedBy, bpmn:performedBy))
-                FILTER EXISTS { ?doel a ?x . FILTER (STRSTARTS(STR(?x), "https://purl.org/archimate#")) }
+                FILTER EXISTS { ?doel a ?x . FILTER (STRSTARTS(STR(?x), "https://w3id.org/archimate#")) }
                 FILTER NOT EXISTS {
                     ?r a bpmn:BridgeRule ; bpmn:bridgeProperty ?p ; bpmn:bpmnType ?bc ; bpmn:archimateType ?ac .
                     $this a/rdfs:subClassOf* ?bc . ?doel a/rdfs:subClassOf* ?ac .

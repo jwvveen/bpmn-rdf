@@ -1,7 +1,7 @@
 @prefix bpmn: <https://w3id.org/bpmn#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ex:   <https://example.org/bpmn/example/> .
-@prefix am:   <https://purl.org/archimate#> .
+@prefix am:   <https://w3id.org/archimate#> .
 
 # A small model that is wrong on purpose. Expected results: see README.
 

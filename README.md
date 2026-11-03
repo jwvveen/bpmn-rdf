@@ -22,7 +22,7 @@ and OMG has no official RDF form of BPMN. The namespace
 | `bpmn.ttl` | **Generated** from OMG's own metamodel (`BPMN20.cmof`): 146 classes with their hierarchy, 212 properties with domain and range, 9 enumerations, `bpmn:abstract` and `bpmn:composite` annotations. Nothing is typed by hand except the Dutch labels |
 | `bpmn-matrix.ttl` | **Generated**: Tables 7.3 (Sequence Flow) and 7.4 (Message Flow) of BPMN 2.0.2. The printed tables have 36 cells each; spelled out over the metamodel classes that gives 81 sequence-flow cells (64 permitted) and 56 message-flow cells (42 permitted), each with the printed cell as provenance |
 | `bpmn-rules.ttl` | **Generated**: the 59 normative sentences about connections, verbatim with clause and page, each with the shape that checks it or the reason nothing does |
-| `bpmn-archimate.ttl` | Bridge to ArchiMate 4.0 (`https://purl.org/archimate#`), concepts and rules: six properties (`elaborates`, `supportedBy`, `performedBy`, `meaning`, `involves`, `appliesRule`) and 24 bridge rules as data, each permitted or discouraged |
+| `bpmn-archimate.ttl` | Bridge to ArchiMate 4.0 (`https://w3id.org/archimate#`), concepts and rules: six properties (`elaborates`, `supportedBy`, `performedBy`, `meaning`, `involves`, `appliesRule`) and 24 bridge rules as data, each permitted or discouraged |
 | `bpmn-alignments.ttl` | **Generated**: `skos:exactMatch` to sBPMN 2.0, the FBK BPMN 2.0 ontology and BBO, only to terms that exist in their files |
 | `shacl/bpmn-shapes.ttl` | Graph integrity and the normative sentences the tables cannot express: pools, containers, events, links, gateways, conditions |
 | `shacl/bpmn-matrix-shapes.ttl` | Two generic SPARQL constraints that read the matrix cells as data |
