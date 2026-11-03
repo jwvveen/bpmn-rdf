@@ -113,7 +113,7 @@ _MM: Metamodel | None = None
 
 
 def laad_metamodel() -> Metamodel:
-    """De ontologie naast deze map (bpmn.ttl), of de kopie naast dit
+    """De ontologie naast deze map (ontology/bpmn/bpmn.ttl), of de kopie naast dit
     bestand (in SemanticXL: semanticxl/web/bpmn2rdf_metamodel.ttl)."""
     global _MM
     if _MM is None:
@@ -126,6 +126,22 @@ def laad_metamodel() -> Metamodel:
     return _MM
 
 
+def _ontleed(xml: bytes) -> ET.Element:
+    """XML van buiten veilig ontleden. In SemanticXL via semanticxl.veilig_xml;
+    los gebruikt weigeren we zelf een bestand met een DOCTYPE of entiteiten
+    (geen entity expansion, geen externe verwijzingen)."""
+    try:
+        from semanticxl import veilig_xml
+    except ImportError:
+        kop = xml.lstrip()[:65536].lower()
+        if b"<!doctype" in kop or b"<!entity" in kop:
+            raise ValueError("BPMN file with a DOCTYPE or entities is not read") from None
+        parser = ET.XMLParser()
+        parser.feed(xml)
+        return parser.close()
+    return veilig_xml.ontleed(xml)
+
+
 def converteer(xml: bytes, base: str, taal: str = "en", mm: Metamodel | None = None,
                uitbreiding: Callable[[Graph, URIRef | BNode, str, ET.Element], None] | None = None,
                ) -> tuple[Graph, Counter[str]]:
@@ -134,7 +150,7 @@ def converteer(xml: bytes, base: str, taal: str = "en", mm: Metamodel | None = N
     g = Graph()
     g.bind("bpmn", BPMN)
     onbekend: Counter[str] = Counter()
-    wortel = ET.fromstring(xml)
+    wortel = _ontleed(xml)
     ids = {el.attrib["id"] for el in wortel.iter() if "id" in el.attrib}
 
     def iri(ident: str) -> URIRef:
