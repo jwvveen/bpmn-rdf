@@ -12,7 +12,7 @@ regels. Het artikel "BPMN 2.0.2 in RDF: the matrix is data" legt de keuzes uit.
 Status: **0.1.0-concept**. Een stuk voor de discussie, geen standaard. BPMN is
 een specificatie van de Object Management Group; dit is geen publicatie van
 OMG, en OMG heeft geen officiële RDF-vorm van BPMN. De namespace
-`https://w3id.org/bpmn#` is voorgesteld en wordt geregistreerd bij w3id.org.
+`https://w3id.org/bpmn#` is geregistreerd bij w3id.org: een RDF-client krijgt de Turtle-bestanden, een browser deze repository.
 
 ## Bestanden
 

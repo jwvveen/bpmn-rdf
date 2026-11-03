@@ -13,7 +13,7 @@ reasoning.
 Status: **0.1.0-concept**. A discussion piece, not a standard. BPMN is a
 specification of the Object Management Group; this is not an OMG publication,
 and OMG has no official RDF form of BPMN. The namespace
-`https://w3id.org/bpmn#` is proposed and is being registered at w3id.org.
+`https://w3id.org/bpmn#` is registered at w3id.org: RDF clients get the Turtle files, browsers this repository.
 
 ## Files
 
